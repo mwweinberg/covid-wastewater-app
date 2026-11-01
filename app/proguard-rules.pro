@@ -1,0 +1,9 @@
+-keepattributes *Annotation*, InnerClasses
+-dontnote kotlinx.serialization.AnnotationsKt
+-keep,includedescriptorclasses class org.weinberg.wastewater.**$$serializer { *; }
+-keepclassmembers class org.weinberg.wastewater.** { *** Companion; }
+-keepclasseswithmembers class org.weinberg.wastewater.** { kotlinx.serialization.KSerializer serializer(...); }
+-dontwarn okhttp3.**
+-dontwarn org.conscrypt.**
+-dontwarn org.bouncycastle.**
+-dontwarn org.openjsse.**

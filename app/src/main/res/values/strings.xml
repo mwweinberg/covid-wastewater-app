@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Wastewater Watch</string>
+    <string name="widget_label">Wastewater level</string>
+    <string name="widget_description">Current COVID wastewater level, trend and season state for a city.</string>
+</resources>

@@ -1,0 +1,40 @@
+{
+ "schemaVersion": 1,
+ "generatedAt": "2026-11-01T09:29:15+00:00",
+ "cities": [
+  {
+   "cityId": "berlin",
+   "cityName": "Berlin",
+   "file": "berlin.json",
+   "pathogens": [
+    "covid",
+    "fluA",
+    "fluB",
+    "rsv"
+   ],
+   "latestSampleDate": "2026-10-11"
+  },
+  {
+   "cityId": "nyc",
+   "cityName": "New York City",
+   "file": "nyc.json",
+   "pathogens": [
+    "covid",
+    "fluA",
+    "rsv"
+   ],
+   "latestSampleDate": "2026-10-10"
+  },
+  {
+   "cityId": "dc",
+   "cityName": "Washington DC",
+   "file": "dc.json",
+   "pathogens": [
+    "covid",
+    "fluA",
+    "rsv"
+   ],
+   "latestSampleDate": "2026-10-24"
+  }
+ ]
+}
