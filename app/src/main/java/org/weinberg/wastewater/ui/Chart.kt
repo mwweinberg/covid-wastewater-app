@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.sp
 import org.weinberg.wastewater.data.WeekPoint
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
+import kotlin.math.abs
 import kotlin.math.floor
 import kotlin.math.log10
 import kotlin.math.pow
@@ -149,6 +150,7 @@ fun YearOverlayChart(weekly: List<WeekPoint>, logScale: Boolean, concentration: 
         .mapValues { (_, v) -> v.map { LocalDate.parse(it.weekEnd).dayOfYear to it.value!! } }
     val years = byYear.keys.sorted()
     val fades = listOf(0.25f, 0.4f, 0.55f, 0.7f)
+    val placedLabels = mutableListOf<Float>()
 
     Canvas(modifier.fillMaxWidth().height(height)) {
         val left = 44.dp.toPx(); val bottom = 18.dp.toPx(); val top = 6.dp.toPx(); val right = 8.dp.toPx()
@@ -172,6 +174,9 @@ fun YearOverlayChart(weekly: List<WeekPoint>, logScale: Boolean, concentration: 
             val x = tx(1 + i * 61); drawLine(grid, Offset(x, plot.top), Offset(x, plot.bottom), 1f)
             val t = measurer.measure(m, labelStyle); drawText(t, topLeft = Offset(x - t.size.width / 2, plot.bottom + 3.dp.toPx()))
         }
+        // draw lines oldest first; place labels current-year first so it keeps its natural spot
+        data class Lbl(val text: String, val color: Color, val x: Float, val y: Float)
+        val labels = mutableListOf<Lbl>()
         years.forEachIndexed { idx, y ->
             val pts = byYear[y]!!.sortedBy { it.first }
             if (pts.size < 2) return@forEachIndexed
@@ -181,8 +186,14 @@ fun YearOverlayChart(weekly: List<WeekPoint>, logScale: Boolean, concentration: 
             pts.forEachIndexed { i, (doy, v) -> if (i == 0) path.moveTo(tx(doy), ty(v)) else path.lineTo(tx(doy), ty(v)) }
             drawPath(path, color, style = Stroke(if (current) 3.dp.toPx() else 1.2.dp.toPx()))
             val last = pts.last()
-            val t = measurer.measure(y.toString(), labelStyle.copy(color = color))
-            drawText(t, topLeft = Offset((tx(last.first) + 3.dp.toPx()).coerceAtMost(plot.right - t.size.width), ty(last.second) - t.size.height / 2))
+            labels += Lbl(y.toString(), color, tx(last.first), ty(last.second))
+        }
+        labels.asReversed().forEach { l ->
+            val t = measurer.measure(l.text, labelStyle.copy(color = l.color))
+            var ly = l.y - t.size.height / 2
+            while (placedLabels.any { abs(it - ly) < t.size.height }) ly += t.size.height
+            placedLabels += ly
+            drawText(t, topLeft = Offset((l.x + 3.dp.toPx()).coerceAtMost(plot.right - t.size.width), ly.coerceIn(plot.top, plot.bottom - t.size.height)))
         }
     }
 }

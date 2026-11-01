@@ -67,8 +67,10 @@ object Analytics {
         val percentile = percentileOf(latest, values)
         val highMark = quantile(values, t.highPercentile / 100.0)
 
+        // growth per calendar week, so gaps in reporting (common in the CDC feed) do not inflate the rate
         val back = minOf(3, i)
-        val growth = if (back > 0) ln(latest / values[i - back]) / back else null
+        val weeksBack = ChronoUnit.WEEKS.between(LocalDate.parse(pts[i - back].weekEnd), LocalDate.parse(pts[i].weekEnd)).coerceAtLeast(1)
+        val growth = if (back > 0) ln(latest / values[i - back]) / weeksBack else null
         var rises = 0
         var j = i
         while (j > 0 && values[j] > values[j - 1]) { rises++; j-- }
@@ -81,7 +83,7 @@ object Analytics {
         val projected: Int? = when {
             highMark == null -> null
             latest >= highMark -> 0
-            growth != null && growth > 0.02 -> ceil(ln(highMark / latest) / growth).toInt()
+            growth != null && growth > 0.02 -> ceil(ln(highMark / latest) / growth).toInt().coerceAtMost(52)
             else -> null
         }
 
