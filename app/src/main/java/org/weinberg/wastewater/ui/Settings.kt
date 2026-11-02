@@ -12,7 +12,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -45,7 +44,9 @@ fun SettingsScreen(state: UiState, vm: MainViewModel, requestNotifications: () -
         }
 
         Section("Notifications")
-        Text("Notify when a city's COVID wave state changes, for example from Quiet to Rising or into the high band. A handful per year at most.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text("Notify when a city's COVID state changes: the threshold category, the wave phase (Quiet, Rising, Peaking, Declining) or an alert. A handful per year at most. " +
+            "Data alarms (a lab or method change that invalidates the readout) are always notified, whatever is set here.",
+            style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         Cities.all.forEach { id ->
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                 Text(Cities.names[id] ?: id, Modifier.weight(1f))
@@ -58,36 +59,28 @@ fun SettingsScreen(state: UiState, vm: MainViewModel, requestNotifications: () -
 
         Section("High mark")
         var pct by rememberSaveable(s.highPercentile) { mutableStateOf(s.highPercentile.toFloat()) }
-        Text("The level that counts as \"high\": the ${pct.toInt()}th percentile of each site's own history. Alerts fire when levels are above it, or are rising fast enough to reach it within three weeks.",
+        Text("The level that counts as \"high\" for the wave phase label and for flu and RSV alerts: the ${pct.toInt()}th percentile of each series' comparable history. " +
+            "COVID alerts do not use it; they fire when a sustained rise is under way and the estimated share of people infectious is at or near the reference threshold.",
             style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         Slider(value = pct, onValueChange = { pct = it }, onValueChangeFinished = { vm.setHighPercentile(pct.toInt()) }, valueRange = 50f..95f, steps = 8)
 
         Section("Chart extras")
-        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-            Column(Modifier.weight(1f)) {
-                Text("Reference line on the COVID chart")
-                Text("A fixed gene copies / L value drawn for orientation only. It never triggers alerts.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            }
-            Switch(checked = s.refLineEnabled, onCheckedChange = { vm.setRefLine(it, s.refLineValue) })
-        }
-        if (s.refLineEnabled) {
-            var txt by rememberSaveable(s.refLineValue) { mutableStateOf(s.refLineValue.toLong().toString()) }
-            OutlinedTextField(value = txt, onValueChange = { v -> txt = v.filter { it.isDigit() }; txt.toDoubleOrNull()?.let { vm.setRefLine(true, it) } },
-                label = { Text("gene copies / L") }, singleLine = true, modifier = Modifier.fillMaxWidth())
-        }
         Row(Modifier.fillMaxWidth().padding(top = 8.dp), verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {
                 Text("National reference line")
-                Text("For Berlin: the Germany-wide average across all RKI sites.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text("For Berlin: the Germany-wide average across all RKI sites (which includes Berlin).", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
             Switch(checked = s.showNationalReference, onCheckedChange = vm::setShowNational)
         }
 
         Section("About")
         val last = if (s.lastRefreshMillis > 0) DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT).format(Date(s.lastRefreshMillis)) else "never"
-        Text("Last successful refresh: $last. Data refreshes in the background about every 12 hours; the feeds themselves update weekly.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text("Last successful refresh: $last. Data refreshes in the background about every 12 hours; the feeds themselves update weekly (NYC monthly, with CDC filling the gap).", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         Spacer(Modifier.height(8.dp))
-        Text("Wastewater measures virus shed into sewers, not illness. Levels are only comparable with the same site's own past, which is why every number here is framed against that history. Sources: Robert Koch-Institut AMELAG (Berlin), NYC Open Data (New York), CDC National Wastewater Surveillance System (DC and flu/RSV for New York).",
+        Text("Wastewater measures virus shed into sewers, not illness. The share-of-people-infectious estimate converts each city's wastewater with a conversion fitted once and frozen " +
+            "(Berlin against GrippeWeb × sentinel positivity, checked against England's random-sample survey; NYC and DC against hospital admissions via Berlin's hospitalisation risk, hence their confidence labels). " +
+            "The reference threshold is Bob Wachter's 2022 cutoff of 10 reported cases per 100,000 per day, converted to about 0.28% of people infectious. " +
+            "Only data from the current laboratory period is shown; older values are not comparable. Sources: Robert Koch-Institut AMELAG (Berlin), NYC Open Data (New York), CDC National Wastewater Surveillance System (DC, NYC fill-in, flu/RSV).",
             style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         Spacer(Modifier.height(24.dp))
     }

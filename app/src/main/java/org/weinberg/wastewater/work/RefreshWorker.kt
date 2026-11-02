@@ -22,9 +22,10 @@ import org.weinberg.wastewater.App
 import org.weinberg.wastewater.R
 import org.weinberg.wastewater.analytics.Alert
 import org.weinberg.wastewater.analytics.Analytics
-import org.weinberg.wastewater.analytics.Phase
+import org.weinberg.wastewater.analytics.Assessment
 import org.weinberg.wastewater.data.Cities
 import org.weinberg.wastewater.data.Pathogens
+import org.weinberg.wastewater.ui.Fmt
 import org.weinberg.wastewater.ui.MainActivity
 import org.weinberg.wastewater.widget.WastewaterWidget
 import java.util.concurrent.TimeUnit
@@ -43,39 +44,64 @@ class RefreshWorker(ctx: Context, params: WorkerParameters) : CoroutineWorker(ct
         for (city in Cities.all) {
             val p = app.repository.cached(city)?.pathogen(Pathogens.COVID) ?: continue
             val a = Analytics.assess(p, settings.thresholds)
-            val state = "${a.phase}/${a.alert}"
+            // phase / alert / threshold category / alarm status: any change is a state change
+            val state = "${a.phase}/${a.alert}/${a.readout?.categoryIndex ?: "-"}/${if (a.alarm) a.readout?.status else "ok"}"
             now[city] = state
             val before = previous[city]
-            if (before != null && before != state && city in settings.notifyCities) {
-                notify(city, a.phase, a.alert, a.growthPercentPerWeek, a.percentile)
-            }
+            if (before == null || before == state) continue
+            val alarmBefore = before.substringAfterLast('/') != "ok"
+            if (a.alarm && !alarmBefore) notifyAlarm(city, a)          // loud, regardless of the per-city switch
+            else if (!a.alarm && city in settings.notifyCities) notify(city, a)
         }
         app.prefs.saveLastPhases(now)
         WastewaterWidget().updateAll(applicationContext)
         return Result.success()
     }
 
-    private fun notify(city: String, phase: Phase, alert: Alert, growth: Double?, pct: Double?) {
-        val ctx = applicationContext
-        if (ContextCompat.checkSelfPermission(ctx, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) return
+    private fun canNotify() = ContextCompat.checkSelfPermission(applicationContext, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED
+
+    private fun openIntent(city: String): PendingIntent = PendingIntent.getActivity(applicationContext, city.hashCode(),
+        Intent(applicationContext, MainActivity::class.java).putExtra("city", city).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
+        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+
+    private fun notify(city: String, a: Assessment) {
+        if (!canNotify()) return
         val name = Cities.names[city] ?: city
-        val title = when (alert) {
-            Alert.ALERT -> "$name: COVID wastewater is high"
-            Alert.WATCH -> "$name: COVID wastewater is rising"
-            Alert.NONE -> "$name: COVID wastewater ${phase.name.lowercase()}"
+        val r = a.readout?.takeIf { it.available }
+        val title = when {
+            a.alert == Alert.ALERT -> "$name: COVID entering a high period"
+            a.alert == Alert.WATCH -> "$name: COVID wastewater is rising"
+            r != null -> "$name: COVID ${r.shortLabel?.lowercase()} the threshold"
+            else -> "$name: COVID wastewater ${a.phase.name.lowercase()}"
         }
         val body = buildString {
-            append(phase.name.lowercase().replaceFirstChar { it.uppercase() })
-            growth?.let { append(", %+.0f%% per week".format(it)) }
-            pct?.let { append(", higher than %.0f%% of past weeks".format(it)) }
+            if (r != null) {
+                append(r.mainLine); r.confidenceLabel?.let { append(" ($it)") }
+                r.prevalence?.let { append(". About ${Fmt.oneIn(it)} people infectious") }
+                r.trend?.let { append(", $it") }
+            } else {
+                append(a.phase.name.lowercase().replaceFirstChar { it.uppercase() })
+                a.growthPercentPerWeek?.let { append(", %+.0f%% per week".format(it)) }
+                a.percentile?.let { append(", higher than %.0f%% of comparable weeks".format(it)) }
+            }
         }
-        val open = PendingIntent.getActivity(ctx, city.hashCode(),
-            Intent(ctx, MainActivity::class.java).putExtra("city", city).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
-        val n = NotificationCompat.Builder(ctx, App.CHANNEL_ID)
+        val n = NotificationCompat.Builder(applicationContext, App.CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_notification).setContentTitle(title).setContentText(body)
-            .setContentIntent(open).setAutoCancel(true).build()
-        NotificationManagerCompat.from(ctx).notify(city.hashCode(), n)
+            .setStyle(NotificationCompat.BigTextStyle().bigText(body))
+            .setContentIntent(openIntent(city)).setAutoCancel(true).build()
+        NotificationManagerCompat.from(applicationContext).notify(city.hashCode(), n)
+    }
+
+    private fun notifyAlarm(city: String, a: Assessment) {
+        if (!canNotify()) return
+        val name = Cities.names[city] ?: city
+        val body = a.readout?.message ?: "The COVID readout for $name has been withheld (${a.readout?.status})."
+        val n = NotificationCompat.Builder(applicationContext, App.ALARM_CHANNEL_ID)
+            .setSmallIcon(R.drawable.ic_notification).setContentTitle("$name: wastewater data alarm")
+            .setContentText(body).setStyle(NotificationCompat.BigTextStyle().bigText(body))
+            .setPriority(NotificationCompat.PRIORITY_HIGH).setCategory(NotificationCompat.CATEGORY_ERROR)
+            .setContentIntent(openIntent(city)).setAutoCancel(true).build()
+        NotificationManagerCompat.from(applicationContext).notify(city.hashCode() + 1, n)
     }
 
     companion object {

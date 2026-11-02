@@ -1,0 +1,19 @@
+{
+  "description": "Incidence-to-prevalence conversion (pipeline/prevalence.py). Best guesses drive display and decisions; ranges are context only.",
+  "symptomatic_fraction": 0.6,
+  "symptomatic_fraction_range": [
+    0.4,
+    0.8
+  ],
+  "days_infectious": 7,
+  "days_infectious_range": [
+    5,
+    10
+  ],
+  "multiplier_best": 1.6666666666666667,
+  "multiplier_range": [
+    0.8928571428571428,
+    3.571428571428571
+  ],
+  "formula": "prevalence = weekly symptomatic incidence (fraction) * (days_infectious / 7) / symptomatic_fraction"
+}

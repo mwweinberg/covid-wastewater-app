@@ -52,6 +52,5 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
     fun setEnabledCities(ids: Set<String>) = viewModelScope.launch { prefs.setEnabledCities(ids) }
     fun setNotifyCities(ids: Set<String>) = viewModelScope.launch { prefs.setNotifyCities(ids) }
     fun setHighPercentile(v: Int) = viewModelScope.launch { prefs.setHighPercentile(v); WastewaterWidget().updateAll(getApplication()) }
-    fun setRefLine(on: Boolean, v: Double) = viewModelScope.launch { prefs.setRefLine(on, v) }
     fun setShowNational(v: Boolean) = viewModelScope.launch { prefs.setShowNational(v) }
 }

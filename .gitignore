@@ -18,3 +18,10 @@ keystore.properties
 pipeline/cache/
 __pycache__/
 .DS_Store
+
+# Local guidance notes
+guidence/
+
+# Methods project: raw downloads and scraped PDF text are not committed
+methods/data/raw/
+methods/data/cache/

@@ -1,19 +1,7 @@
 {
- "schemaVersion": 1,
- "generatedAt": "2026-11-01T21:59:53+00:00",
+ "schemaVersion": 2,
+ "generatedAt": "2026-11-02T07:34:15+00:00",
  "cities": [
-  {
-   "cityId": "berlin",
-   "cityName": "Berlin",
-   "file": "berlin.json",
-   "pathogens": [
-    "covid",
-    "fluA",
-    "fluB",
-    "rsv"
-   ],
-   "latestSampleDate": "2026-10-11"
-  },
   {
    "cityId": "nyc",
    "cityName": "New York City",
@@ -23,18 +11,8 @@
     "fluA",
     "rsv"
    ],
-   "latestSampleDate": "2026-10-10"
-  },
-  {
-   "cityId": "dc",
-   "cityName": "Washington DC",
-   "file": "dc.json",
-   "pathogens": [
-    "covid",
-    "fluA",
-    "rsv"
-   ],
-   "latestSampleDate": "2026-10-24"
+   "latestSampleDate": "2026-10-10",
+   "readout": "Well above the threshold"
   }
  ]
 }

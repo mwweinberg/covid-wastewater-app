@@ -1,0 +1,150 @@
+{
+  "nyc": {
+    "status": "ok",
+    "nyc_open_data_through_week": "2026-10-03",
+    "series_through_week": "2026-10-10",
+    "provisional_weeks_from_cdc": [
+      "2026-10-10"
+    ],
+    "nyc_vs_cdc_shift_log10": -8.529768164504128e-09,
+    "cdc_intercepts_this_run": {
+      "26th Ward": 3.601349311153644,
+      "Bowery Bay": 3.6666076960449714,
+      "Coney Island": 3.6014801384005453,
+      "Hunts Point": 3.881057039440804,
+      "Jamaica Bay": 3.9435768569168643,
+      "Newtown Creek": 3.771937254735659,
+      "North River": 3.7920856152031326,
+      "Oakwood Beach": 4.083125289862994,
+      "Owls Head": 3.2303552906430704,
+      "Port Richmond": 3.622813624403042,
+      "Red Hook": 3.7888760523850054,
+      "Rockaway": 3.7531332368488557,
+      "Tallman Island": 4.081679179877136,
+      "Wards Island": 3.963128231068231
+    },
+    "cdc_restatement_by_plant": {
+      "26th Ward": {
+        "alpha": 4.187216488105592e-09,
+        "beta": 0.9999999598194547,
+        "resid_sd": 2.676075016493041e-07,
+        "n_weeks": 217,
+        "restated": false
+      },
+      "Bowery Bay": {
+        "alpha": 2.554910884775534e-10,
+        "beta": 0.9999999869855268,
+        "resid_sd": 2.7268455202758413e-07,
+        "n_weeks": 217,
+        "restated": false
+      },
+      "Coney Island": {
+        "alpha": 4.233325203288174e-09,
+        "beta": 1.000000057486862,
+        "resid_sd": 2.646843244055072e-07,
+        "n_weeks": 217,
+        "restated": false
+      },
+      "Hunts Point": {
+        "alpha": -2.370362099515063e-08,
+        "beta": 0.9999999811579835,
+        "resid_sd": 2.7696183692544676e-07,
+        "n_weeks": 217,
+        "restated": false
+      },
+      "Jamaica Bay": {
+        "alpha": -2.248246035133021e-08,
+        "beta": 1.0000000078610678,
+        "resid_sd": 2.874485515612211e-07,
+        "n_weeks": 211,
+        "restated": false
+      },
+      "Newtown Creek": {
+        "alpha": 2.147089085187997e-08,
+        "beta": 0.999999970149053,
+        "resid_sd": 2.8003971678485664e-07,
+        "n_weeks": 213,
+        "restated": false
+      },
+      "North River": {
+        "alpha": -3.047725071297986e-08,
+        "beta": 1.0000000422636741,
+        "resid_sd": 2.63576787386241e-07,
+        "n_weeks": 210,
+        "restated": false
+      },
+      "Oakwood Beach": {
+        "alpha": -1.1739754523200566e-08,
+        "beta": 0.9999999604547732,
+        "resid_sd": 2.623310755665387e-07,
+        "n_weeks": 209,
+        "restated": false
+      },
+      "Owls Head": {
+        "alpha": -4.942932413951846e-08,
+        "beta": 1.0000000294156726,
+        "resid_sd": 2.698192876707522e-07,
+        "n_weeks": 217,
+        "restated": false
+      },
+      "Port Richmond": {
+        "alpha": 2.4748254684880688e-08,
+        "beta": 0.9999999724792086,
+        "resid_sd": 2.8545855499169046e-07,
+        "n_weeks": 210,
+        "restated": false
+      },
+      "Red Hook": {
+        "alpha": -3.428227879187532e-08,
+        "beta": 1.00000002684999,
+        "resid_sd": 2.730054015705994e-07,
+        "n_weeks": 207,
+        "restated": false
+      },
+      "Rockaway": {
+        "alpha": -4.213163909650857e-08,
+        "beta": 1.000000093950736,
+        "resid_sd": 2.521159470325763e-07,
+        "n_weeks": 210,
+        "restated": false
+      },
+      "Tallman Island": {
+        "alpha": -5.01249947831127e-10,
+        "beta": 1.0000000085660434,
+        "resid_sd": 2.651822395326191e-07,
+        "n_weeks": 199,
+        "restated": false
+      },
+      "Wards Island": {
+        "alpha": -1.1125923577066863e-08,
+        "beta": 1.0000000041443484,
+        "resid_sd": 2.759138670841206e-07,
+        "n_weeks": 217,
+        "restated": false
+      }
+    }
+  },
+  "dc": {
+    "status": "ok",
+    "series_through_week": "2026-10-24",
+    "missing_weeks": [
+      "2025-02-08",
+      "2025-04-26",
+      "2025-05-17",
+      "2025-05-24",
+      "2025-05-31",
+      "2026-09-19",
+      "2026-09-26",
+      "2026-10-03",
+      "2026-10-10",
+      "2026-10-17"
+    ],
+    "cdc_restatement": {
+      "alpha": -3.8341399320371184e-09,
+      "beta": 1.000000030542878,
+      "resid_sd": 2.6561498922011644e-07,
+      "n_weeks": 111,
+      "restated": false
+    }
+  }
+}

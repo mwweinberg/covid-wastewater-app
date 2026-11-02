@@ -16,15 +16,21 @@ class App : Application() {
         instance = this
         repository = Repository(this)
         prefs = Prefs(this)
-        getSystemService(NotificationManager::class.java).createNotificationChannel(
-            NotificationChannel(CHANNEL_ID, "Wave state changes", NotificationManager.IMPORTANCE_DEFAULT).apply {
-                description = "Sent when a city's wastewater trend changes state, if enabled for that city."
+        val nm = getSystemService(NotificationManager::class.java)
+        nm.createNotificationChannel(
+            NotificationChannel(CHANNEL_ID, "State changes", NotificationManager.IMPORTANCE_DEFAULT).apply {
+                description = "Sent when a city's COVID threshold category, wave phase or alert changes, if enabled for that city."
+            })
+        nm.createNotificationChannel(
+            NotificationChannel(ALARM_CHANNEL_ID, "Data alarms", NotificationManager.IMPORTANCE_HIGH).apply {
+                description = "A laboratory or method change has made the wastewater data non-comparable; the threshold readout is withheld until refit."
             })
         RefreshWorker.schedule(this)
     }
 
     companion object {
         const val CHANNEL_ID = "state_changes"
+        const val ALARM_CHANNEL_ID = "data_alarms"
         lateinit var instance: App
     }
 }

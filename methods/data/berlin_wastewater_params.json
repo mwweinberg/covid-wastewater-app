@@ -1,0 +1,24 @@
+{
+  "description": "FROZEN parameters to rebuild the Berlin weekly wastewater series (pipeline/wastewater.py). Written only by --recalibrate, as part of a refit.",
+  "calibration_period_start": "2024-04-03",
+  "plants": [
+    "Berlin Ruhleben",
+    "Berlin Schönerlinde",
+    "Berlin Waßmannsdorf"
+  ],
+  "plant_weights_einwohner": {
+    "Berlin Ruhleben": 1639198,
+    "Berlin Schönerlinde": 650000,
+    "Berlin Waßmannsdorf": 1586494
+  },
+  "plant_offsets_log10": {
+    "Berlin Ruhleben": -0.10136316635078718,
+    "Berlin Schönerlinde": 0.09400471366760285,
+    "Berlin Waßmannsdorf": 0.007358452683184493
+  },
+  "floor_values_raw_copies_per_l": [
+    1000.0
+  ],
+  "value": "log10 of viruslast_normalisiert; weekly mean per plant (ISO weeks), minus plant offset, population-weighted mean over reporting plants",
+  "frozen_from_data_through": "2026-10-11"
+}

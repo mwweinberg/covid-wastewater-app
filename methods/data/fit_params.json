@@ -1,0 +1,82 @@
+{
+  "description": "Wastewater -> prevalence conversion (pipeline/fit.py). log10(prevalence) = a + b * (w - w_ref), w = log10 Berlin wastewater (copies/L, trailing 2-week mean) lag_weeks earlier.",
+  "a": -2.854740602781831,
+  "a_ci95_bootstrap": [
+    -2.989168622931464,
+    -2.8095764957810387
+  ],
+  "b": 1.2196854622520887,
+  "b_ci95_bootstrap": [
+    1.030175896882405,
+    1.414229183814753
+  ],
+  "slope_rule": "free",
+  "level_rule": "a = average (log10) of the complete seasons' levels (2024_2025, 2025_2026), each with b fixed; b from all weeks. User decision 2026-11-01 (revised from latest-season-only); revisit at each refit.",
+  "level_season": "average of 2024_2025, 2025_2026",
+  "level_seasons": [
+    "2024_2025",
+    "2025_2026"
+  ],
+  "season_levels": {
+    "2024_2025": {
+      "a": -2.940714826629658,
+      "prevalence_at_100k_pct": 0.11462653734356737,
+      "weeks": 52
+    },
+    "2025_2026": {
+      "a": -2.768766378934004,
+      "prevalence_at_100k_pct": 0.17030744009013027,
+      "weeks": 40
+    }
+  },
+  "a_pooled_all_weeks": -2.892104116213988,
+  "a_pooled_ci95_bootstrap": [
+    -3.058691680594386,
+    -2.7513655324831454
+  ],
+  "w_ref_log10": 5.0,
+  "lag_weeks": 0,
+  "wastewater_column": "log10_trailing2",
+  "prevalence_at_100k_copies_pct": 0.13972026388959716,
+  "kappa_betabinomial": 109.58713077016131,
+  "residual_scatter_sd_log10": 0.14899516671930246,
+  "residual_scatter_weeks": 48,
+  "residual_scatter_level_season_diagnostic": {
+    "sd_excess_log10": 0.18163191222023942,
+    "sd_total_log10": 0.22517429563440794,
+    "weeks": 33
+  },
+  "n_weeks_slope": 119,
+  "n_weeks_level": 92,
+  "weeks": [
+    "2024-W15",
+    "2026-W41"
+  ],
+  "prevalence_multiplier_used": 1.6666666666666667,
+  "wastewater_calibration": {
+    "calibration_period_start": "2024-04-03",
+    "plants": [
+      "Berlin Ruhleben",
+      "Berlin Sch\u00f6nerlinde",
+      "Berlin Wa\u00dfmannsdorf"
+    ],
+    "plant_weights_einwohner": {
+      "Berlin Ruhleben": 1639198,
+      "Berlin Sch\u00f6nerlinde": 650000,
+      "Berlin Wa\u00dfmannsdorf": 1586494
+    },
+    "plant_offsets_log10": {
+      "Berlin Ruhleben": -0.10136316635078718,
+      "Berlin Sch\u00f6nerlinde": 0.09400471366760285,
+      "Berlin Wa\u00dfmannsdorf": 0.007358452683184493
+    },
+    "floor_values_raw_copies_per_l": [
+      1000.0
+    ]
+  },
+  "bootstrap": {
+    "replicates": 500,
+    "block_len_weeks": 6,
+    "seed": 20261101
+  }
+}

@@ -19,11 +19,11 @@ import androidx.glance.Image
 import androidx.glance.ImageProvider
 import androidx.glance.LocalSize
 import androidx.glance.action.actionParametersOf
+import androidx.glance.action.actionStartActivity
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
 import androidx.glance.appwidget.SizeMode
-import androidx.glance.action.actionStartActivity
 import androidx.glance.appwidget.cornerRadius
 import androidx.glance.appwidget.provideContent
 import androidx.glance.background
@@ -42,13 +42,13 @@ import androidx.glance.layout.width
 import androidx.glance.state.PreferencesGlanceStateDefinition
 import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
+import androidx.glance.text.TextAlign
 import androidx.glance.text.TextStyle
 import androidx.glance.unit.ColorProvider
 import org.weinberg.wastewater.App
 import org.weinberg.wastewater.analytics.Alert
 import org.weinberg.wastewater.analytics.Analytics
 import org.weinberg.wastewater.analytics.Assessment
-import org.weinberg.wastewater.analytics.Phase
 import org.weinberg.wastewater.data.Cities
 import org.weinberg.wastewater.data.Pathogens
 import org.weinberg.wastewater.data.WeekPoint
@@ -65,12 +65,14 @@ class WastewaterWidgetReceiver : GlanceAppWidgetReceiver() {
 
 class WastewaterWidget : GlanceAppWidget() {
     companion object {
+        /** One launcher cell: category word and "1 in N" only. */
+        val TINY = DpSize(40.dp, 40.dp)
         val SMALL = DpSize(110.dp, 40.dp)
         val MEDIUM = DpSize(180.dp, 100.dp)
         val LARGE = DpSize(250.dp, 150.dp)
     }
 
-    override val sizeMode = SizeMode.Responsive(setOf(SMALL, MEDIUM, LARGE))
+    override val sizeMode = SizeMode.Responsive(setOf(TINY, SMALL, MEDIUM, LARGE))
     override val stateDefinition = PreferencesGlanceStateDefinition
 
     override suspend fun provideGlance(context: Context, id: GlanceId) {
@@ -89,24 +91,53 @@ class WastewaterWidget : GlanceAppWidget() {
     @Composable
     private fun Content(cityId: String, a: Assessment?, weekly: List<WeekPoint>, concentration: Boolean) {
         val size = LocalSize.current
-        val accent = a?.let { Palette.alert(it.alert, it.phase) } ?: Palette.unknown
+        val r = a?.readout?.takeIf { it.available }
+        val accent = when {
+            a == null -> Palette.unknown
+            a.alarm -> Palette.alarm
+            a.alert != Alert.NONE -> Palette.alert(a.alert, a.phase)
+            r != null -> Palette.band(r.categoryIndex)
+            else -> Palette.phase(a.phase)
+        }
         val bg = ColorProvider(accent.copy(alpha = 0.18f).compositeOver(Color(0xFF14181F)))
         val onBg = ColorProvider(Color.White)
         val sub = ColorProvider(Color(0xFFC9D1DC))
         val name = Cities.names[cityId] ?: cityId
+        val code = Cities.codes[cityId] ?: cityId.uppercase()
         val open = actionStartActivity<MainActivity>(actionParametersOf(CityParam to cityId))
+        val tiny = size.width < SMALL.width
 
-        Box(GlanceModifier.fillMaxSize().background(bg).cornerRadius(20.dp).clickable(open).padding(10.dp)) {
-            if (a == null) { Text("$name: no data yet", style = TextStyle(color = onBg, fontSize = 12.sp)); return@Box }
-            val headline = if (a.belowDetection) "Below detection" else Fmt.level(a.latestValue, concentration)
+        Box(GlanceModifier.fillMaxSize().background(bg).cornerRadius(if (tiny) 16.dp else 20.dp).clickable(open).padding(if (tiny) 6.dp else 10.dp)) {
+            if (a == null) { Text(if (tiny) "$code\nno data" else "$name: no data yet", style = TextStyle(color = onBg, fontSize = 11.sp, textAlign = TextAlign.Center)); return@Box }
+            if (a.alarm) {
+                Column(GlanceModifier.fillMaxSize(), verticalAlignment = Alignment.CenterVertically, horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(if (tiny) code else name, style = TextStyle(color = sub, fontSize = 10.sp))
+                    Text(if (tiny) "DATA\nALARM" else "Data alarm: readout withheld", style = TextStyle(color = ColorProvider(Palette.alarm.lighten()), fontSize = if (tiny) 12.sp else 14.sp, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center))
+                    if (!tiny) Text(a.readout?.status ?: "", style = TextStyle(color = sub, fontSize = 10.sp))
+                }
+                return@Box
+            }
+            val headline = when { a.belowDetection -> "Below detection"; a.atFloor -> "At minimum"; else -> Fmt.level(a.latestValue, concentration) }
             val arrow = arrowFor(a)
+            val oneIn = r?.prevalence?.let { Fmt.oneIn(it) }
+            val readoutLine = r?.let { listOfNotNull(it.shortLabel, oneIn).joinToString(" · ") }
             when {
+                tiny -> Column(GlanceModifier.fillMaxSize(), verticalAlignment = Alignment.CenterVertically, horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(code, style = TextStyle(color = sub, fontSize = 9.sp))
+                    if (r != null) {
+                        Text(oneIn ?: "–", style = TextStyle(color = onBg, fontSize = 12.sp, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center))
+                        Text(r.shortLabel ?: "", style = TextStyle(color = ColorProvider(accent.lighten()), fontSize = 9.sp, fontWeight = FontWeight.Medium, textAlign = TextAlign.Center))
+                    } else {
+                        Text("$headline $arrow", style = TextStyle(color = onBg, fontSize = 12.sp, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center))
+                        Text(Fmt.phaseLabel(a.phase), style = TextStyle(color = ColorProvider(accent.lighten()), fontSize = 9.sp, textAlign = TextAlign.Center))
+                    }
+                }
                 size.height < MEDIUM.height -> Row(GlanceModifier.fillMaxSize(), verticalAlignment = Alignment.CenterVertically) {
                     Dot(accent)
                     Spacer(GlanceModifier.width(8.dp))
                     Column {
                         Text(name, style = TextStyle(color = sub, fontSize = 11.sp))
-                        Text("$headline $arrow", style = TextStyle(color = onBg, fontSize = 16.sp, fontWeight = FontWeight.Bold))
+                        Text(readoutLine ?: "$headline $arrow", style = TextStyle(color = onBg, fontSize = 15.sp, fontWeight = FontWeight.Bold))
                     }
                 }
                 else -> Column(GlanceModifier.fillMaxSize()) {
@@ -115,20 +146,28 @@ class WastewaterWidget : GlanceAppWidget() {
                         Text("$name · COVID", style = TextStyle(color = sub, fontSize = 11.sp))
                     }
                     Spacer(GlanceModifier.height(2.dp))
+                    if (r != null) {
+                        Text("${r.shortLabel} the threshold" + (if (r.projected) " (est. today)" else ""), style = TextStyle(color = ColorProvider(Palette.band(r.categoryIndex).lighten()), fontSize = 16.sp, fontWeight = FontWeight.Bold))
+                        Text(listOfNotNull(oneIn?.let { "About $it infectious" }, r.confidenceLabel?.lowercase()).joinToString(" · "), style = TextStyle(color = onBg, fontSize = 12.sp))
+                        Spacer(GlanceModifier.height(2.dp))
+                    }
                     Row(verticalAlignment = Alignment.Bottom) {
-                        Text(headline, style = TextStyle(color = onBg, fontSize = 24.sp, fontWeight = FontWeight.Bold))
+                        Text(headline, style = TextStyle(color = onBg, fontSize = if (r != null) 18.sp else 24.sp, fontWeight = FontWeight.Bold))
                         Spacer(GlanceModifier.width(6.dp))
                         Text("$arrow ${Fmt.growth(a.growthPercentPerWeek)}/wk", style = TextStyle(color = sub, fontSize = 12.sp))
                     }
-                    Text("${Fmt.phaseLabel(a.phase)} · above ${Fmt.pct(a.percentile)} of history",
-                        style = TextStyle(color = ColorProvider(accent.lighten()), fontSize = 12.sp, fontWeight = FontWeight.Medium))
+                    Text("${if (a.alert == Alert.NONE) Fmt.phaseLabel(a.phase) else Fmt.alertLabel(a.alert)} · above ${Fmt.pct(a.percentile)} of weeks",
+                        style = TextStyle(color = ColorProvider(Palette.alert(a.alert, a.phase).lighten()), fontSize = 12.sp, fontWeight = FontWeight.Medium))
                     if (size.height >= LARGE.height) {
                         Spacer(GlanceModifier.height(4.dp))
-                        val bmp = sparkline(weekly, a.highMark, concentration, accent.toArgb(), (size.width.value * 2.5).toInt(), 110)
+                        val mark = r?.bandEdgesLevel?.getOrNull(1) ?: a.highMark
+                        val bmp = sparkline(weekly, mark, concentration, accent.toArgb(), (size.width.value * 2.5).toInt(), 110)
                         Image(ImageProvider(bmp), contentDescription = "last 6 months", modifier = GlanceModifier.fillMaxWidth().height(44.dp), contentScale = ContentScale.FillBounds)
                     }
                     Spacer(GlanceModifier.height(2.dp))
-                    Text("sample ${Fmt.date(a.latestWeekEnd)}" + if (a.isStale) " · stale" else "", style = TextStyle(color = sub, fontSize = 10.sp))
+                    val foot = if (r != null) "samples through ${Fmt.date(r.asOf)}" + (if (r.dataDelayed) " · delayed" else "") + (if (r.provisional) " · provisional" else "")
+                               else "sample ${Fmt.date(a.latestWeekEnd)}" + if (a.isStale) " · stale" else ""
+                    Text(foot, style = TextStyle(color = sub, fontSize = 10.sp))
                 }
             }
         }
@@ -145,17 +184,17 @@ class WastewaterWidget : GlanceAppWidget() {
         else -> "→"
     }
 
-    /** Last 26 weeks, log scale for concentrations, high mark as dashed line. */
-    private fun sparkline(weekly: List<WeekPoint>, highMark: Double?, concentration: Boolean, color: Int, w: Int, h: Int): Bitmap {
+    /** Last 26 weeks, log scale for concentrations, threshold edge (or high mark) as dashed line. */
+    private fun sparkline(weekly: List<WeekPoint>, mark: Double?, concentration: Boolean, color: Int, w: Int, h: Int): Bitmap {
         val bmp = Bitmap.createBitmap(w.coerceAtLeast(50), h, Bitmap.Config.ARGB_8888)
         val c = android.graphics.Canvas(bmp)
         val pts = weekly.takeLast(26).mapNotNull { it.value?.takeIf { v -> v > 0 } }
         if (pts.size < 2) return bmp
         fun f(v: Double) = if (concentration) ln(v) else v
-        val vals = pts.map(::f) + listOfNotNull(highMark?.let(::f))
+        val vals = pts.map(::f) + listOfNotNull(mark?.let(::f))
         val lo = vals.min(); val hi = vals.max().let { if (it - lo < 1e-9) lo + 1 else it }
         fun y(v: Double) = (h - 4) - ((f(v) - lo) / (hi - lo) * (h - 8)).toFloat()
-        highMark?.let { hm ->
+        mark?.let { hm ->
             c.drawLine(0f, y(hm), w.toFloat(), y(hm), Paint().apply { this.color = color; alpha = 110; strokeWidth = 2f; pathEffect = android.graphics.DashPathEffect(floatArrayOf(8f, 8f), 0f) })
         }
         val path = Path()

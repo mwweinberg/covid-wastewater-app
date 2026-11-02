@@ -1,0 +1,107 @@
+{
+  "nyc": {
+    "a": -1.7494935948401835,
+    "a_ci95_bootstrap": [
+      -1.8142765502871243,
+      -1.6791598164803423
+    ],
+    "b": 1.0,
+    "b_ci95_bootstrap": [
+      1.0,
+      1.0
+    ],
+    "slope_rule": "1 (fixed, user decision 2026-11-01)",
+    "lag_weeks": 1,
+    "w_ref": 5.0,
+    "wastewater_units": "log10 copies/L (NYC Open Data, dPCR; trailing 2-week mean)",
+    "level_season": "average of 2023_2024, 2024_2025, 2025_2026",
+    "a_pooled_all_weeks": -1.7128481006536314,
+    "prevalence_at_w_ref_pct": 1.7803541660809048,
+    "residual_sd_log10_all_weeks": 0.20515916485171606,
+    "n_weeks_slope": 147,
+    "n_weeks_level": 147,
+    "weeks": [
+      "2023-10-21",
+      "2026-08-22"
+    ],
+    "band_edges_prevalence": [
+      0.0014,
+      0.002,
+      0.00392,
+      0.0056
+    ],
+    "band_edges_wastewater": [
+      3.8956216305184217,
+      4.050523590504165,
+      4.342779661860641,
+      4.497681621846384
+    ],
+    "aic_slope1_minus_free": 118.04078048142566,
+    "free_slope_diagnostic": 0.6393156846701712,
+    "level_rule": "average of the complete seasons' levels; each season's level matches its mean hospital-based prevalence (user decision 2026-11-01)",
+    "season_levels_pct_at_w_ref": {
+      "2023_2024": 1.5572041730794501,
+      "2024_2025": 1.3984105077913433,
+      "2025_2026": 2.5914269916284294
+    },
+    "level_range_between_seasons_pct_at_w_ref": [
+      1.3984105077913433,
+      2.5914269916284294
+    ],
+    "a_ci95_bootstrap_note": "within-season week-to-week noise only; see level_range_between_seasons",
+    "confidence": "Very low confidence"
+  },
+  "dc": {
+    "a": -2.7458573042958934,
+    "a_ci95_bootstrap": [
+      -2.871557653939619,
+      -2.635545471623456
+    ],
+    "b": 1.0,
+    "b_ci95_bootstrap": [
+      1.0,
+      1.0
+    ],
+    "slope_rule": "1 (fixed, user decision 2026-11-01)",
+    "lag_weeks": 3,
+    "w_ref": 0.5,
+    "wastewater_units": "log10 CDC WVAL (Blue Plains, Verily lab; trailing 2-week mean)",
+    "level_season": "average of 2024_2025, 2025_2026",
+    "a_pooled_all_weeks": -2.762803148697469,
+    "prevalence_at_w_ref_pct": 0.1795323417555722,
+    "residual_sd_log10_all_weeks": 0.2873249634141518,
+    "n_weeks_slope": 92,
+    "n_weeks_level": 91,
+    "weeks": [
+      "2024-11-09",
+      "2026-10-03"
+    ],
+    "band_edges_prevalence": [
+      0.0014,
+      0.002,
+      0.00392,
+      0.0056
+    ],
+    "band_edges_wastewater": [
+      0.39198533997413154,
+      0.5468872999598746,
+      0.8391433713163505,
+      0.9940453313020936
+    ],
+    "aic_slope1_minus_free": 7.447281707268388,
+    "free_slope_diagnostic": 0.7362570261139644,
+    "level_rule": "average of the complete seasons' levels; each season's level matches its mean hospital-based prevalence (user decision 2026-11-01)",
+    "season_levels_pct_at_w_ref": {
+      "2024_2025": 0.15968084498066054,
+      "2025_2026": 0.2018517733930033
+    },
+    "level_range_between_seasons_pct_at_w_ref": [
+      0.15968084498066054,
+      0.2018517733930033
+    ],
+    "a_ci95_bootstrap_note": "within-season week-to-week noise only; see level_range_between_seasons",
+    "confidence": "Low confidence"
+  },
+  "description": "Wastewater -> prevalence conversion for NYC and DC (pipeline/us_fit.py): log10(prevalence) = a + b * (w - w_ref), w lag_weeks earlier. Reference: local hospital admissions / Berlin-method IHR (pipeline/us_reference.py).",
+  "threshold_prevalence": 0.0028
+}

@@ -1,0 +1,97 @@
+{
+  "nyc": {
+    "comparable_since": "2023-04-16",
+    "methods": [
+      "dPCR-SC2",
+      "dPCR - N1"
+    ],
+    "cdc_site_map": {
+      "ID:1251": "Hunts Point",
+      "ID:1308": "26th Ward",
+      "ID:1309": "Coney Island",
+      "ID:1310": "Newtown Creek",
+      "ID:1311": "Owls Head",
+      "ID:1312": "Red Hook",
+      "ID:1337": "North River",
+      "ID:1384": "Bowery Bay",
+      "ID:1385": "Jamaica Bay",
+      "ID:1386": "Rockaway",
+      "ID:1387": "Tallman Island",
+      "ID:1388": "Wards Island",
+      "ID:1391": "Oakwood Beach",
+      "ID:1392": "Port Richmond"
+    },
+    "plant_weights_population": {
+      "26th Ward": 318262.0,
+      "Bowery Bay": 894311.0,
+      "Coney Island": 647635.0,
+      "Hunts Point": 781885.0,
+      "Jamaica Bay": 735054.0,
+      "Newtown Creek": 1227810.0,
+      "North River": 649549.0,
+      "Oakwood Beach": 243910.0,
+      "Owls Head": 923524.0,
+      "Port Richmond": 224516.0,
+      "Red Hook": 257556.0,
+      "Rockaway": 117991.0,
+      "Tallman Island": 457817.0,
+      "Wards Island": 1173448.0
+    },
+    "plant_offsets_log10": {
+      "26th Ward": -0.004891889089274004,
+      "Bowery Bay": 0.10396278747504263,
+      "Coney Island": -0.22344587455405246,
+      "Hunts Point": 0.05816009154402418,
+      "Jamaica Bay": 0.06717519859598103,
+      "Newtown Creek": 0.025012552069665225,
+      "North River": 0.019321829092037522,
+      "Oakwood Beach": 0.09842861744614516,
+      "Owls Head": -0.08492652420377067,
+      "Port Richmond": -0.21187655260949484,
+      "Red Hook": 0.06768340443671451,
+      "Rockaway": -0.10786459568708882,
+      "Tallman Island": 0.04241106076813382,
+      "Wards Island": 0.15084989471593732
+    },
+    "cdc_translation_slopes": {
+      "26th Ward": 1.2792127377443148,
+      "Bowery Bay": 1.344863568164148,
+      "Coney Island": 1.0663502568548582,
+      "Hunts Point": 1.016054252932516,
+      "Jamaica Bay": 0.9341430236971707,
+      "Newtown Creek": 1.0157543212018765,
+      "North River": 1.0637811438241207,
+      "Oakwood Beach": 1.0834625798793396,
+      "Owls Head": 1.2633109585190991,
+      "Port Richmond": 1.03609206661907,
+      "Red Hook": 1.1576918307382928,
+      "Rockaway": 1.164299786261622,
+      "Tallman Island": 0.9119233449779771,
+      "Wards Island": 1.1357430554418937
+    },
+    "cdc_intercepts_at_freeze": {
+      "26th Ward": 3.601349339801716,
+      "Bowery Bay": 3.6666077078759916,
+      "Coney Island": 3.601480094714099,
+      "Hunts Point": 3.8810570767789865,
+      "Jamaica Bay": 3.9435768732359704,
+      "Newtown Creek": 3.7719372483662013,
+      "North River": 3.792085620362815,
+      "Oakwood Beach": 4.083125308935777,
+      "Owls Head": 3.2303553187028666,
+      "Port Richmond": 3.6228136064316305,
+      "Red Hook": 3.788876084831676,
+      "Rockaway": 3.7531332358800142,
+      "Tallman Island": 4.0816791778184776,
+      "Wards Island": 3.9631282411695445
+    }
+  },
+  "dc": {
+    "comparable_since": "2024-06-15",
+    "sources": [
+      "CDC_Verily"
+    ],
+    "site": "ID:300"
+  },
+  "description": "FROZEN parameters for the NYC and DC weekly wastewater series (pipeline/us_wastewater.py). Written only by --recalibrate, as part of a refit."
+}
