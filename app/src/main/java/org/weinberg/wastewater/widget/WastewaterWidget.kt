@@ -49,6 +49,7 @@ import org.weinberg.wastewater.App
 import org.weinberg.wastewater.analytics.Alert
 import org.weinberg.wastewater.analytics.Analytics
 import org.weinberg.wastewater.analytics.Assessment
+import org.weinberg.wastewater.analytics.Phase
 import org.weinberg.wastewater.data.Cities
 import org.weinberg.wastewater.data.Pathogens
 import org.weinberg.wastewater.data.WeekPoint
@@ -95,8 +96,8 @@ class WastewaterWidget : GlanceAppWidget() {
         val accent = when {
             a == null -> Palette.unknown
             a.alarm -> Palette.alarm
-            a.alert != Alert.NONE -> Palette.alert(a.alert, a.phase)
             r != null -> Palette.band(r.categoryIndex)
+            a.alert != Alert.NONE -> Palette.alert(a.alert, a.phase)
             else -> Palette.phase(a.phase)
         }
         val bg = ColorProvider(accent.copy(alpha = 0.18f).compositeOver(Color(0xFF14181F)))
@@ -126,7 +127,7 @@ class WastewaterWidget : GlanceAppWidget() {
                     Text(code, style = TextStyle(color = sub, fontSize = 9.sp))
                     if (r != null) {
                         Text(oneIn ?: "–", style = TextStyle(color = onBg, fontSize = 12.sp, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center))
-                        Text(r.shortLabel ?: "", style = TextStyle(color = ColorProvider(accent.lighten()), fontSize = 9.sp, fontWeight = FontWeight.Medium, textAlign = TextAlign.Center))
+                        Text(if (a.alert != Alert.NONE) "${r.shortLabel} ↑" else r.shortLabel ?: "", style = TextStyle(color = ColorProvider(accent.lighten()), fontSize = 9.sp, fontWeight = FontWeight.Medium, textAlign = TextAlign.Center))
                     } else {
                         Text("$headline $arrow", style = TextStyle(color = onBg, fontSize = 12.sp, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center))
                         Text(Fmt.phaseLabel(a.phase), style = TextStyle(color = ColorProvider(accent.lighten()), fontSize = 9.sp, textAlign = TextAlign.Center))
@@ -156,7 +157,8 @@ class WastewaterWidget : GlanceAppWidget() {
                         Spacer(GlanceModifier.width(6.dp))
                         Text("$arrow ${Fmt.growth(a.growthPercentPerWeek)}/wk", style = TextStyle(color = sub, fontSize = 12.sp))
                     }
-                    Text("${if (a.alert == Alert.NONE) Fmt.phaseLabel(a.phase) else Fmt.alertLabel(a.alert)} · above ${Fmt.pct(a.percentile)} of weeks",
+                    val badge = if (r != null && a.phase == Phase.QUIET && a.alert == Alert.NONE) "" else "${if (a.alert == Alert.NONE) Fmt.phaseLabel(a.phase) else Fmt.alertLabel(a.alert)} · "
+                    Text("${badge}above ${Fmt.pct(a.percentile)} of weeks",
                         style = TextStyle(color = ColorProvider(Palette.alert(a.alert, a.phase).lighten()), fontSize = 12.sp, fontWeight = FontWeight.Medium))
                     if (size.height >= LARGE.height) {
                         Spacer(GlanceModifier.height(4.dp))

@@ -344,13 +344,17 @@ def _trailing2(weeks, w):
 
 
 def _trend(weeks, latest, cfg):
-    """Trend label from MEASURED weekly values: mean of the latest 3 weeks vs
-    the 3 before (log10), x1.25 cut-off. None if any of the 6 weeks is missing
-    (gap), below LOQ (Berlin) or provisional (NYC, CDC-filled)."""
+    """Trend label: mean of the latest 3 weeks vs the 3 before (log10), x1.25
+    cut-off. None if any of the 6 weeks is missing (gap) or below LOQ (Berlin).
+    Provisional NYC weeks (CDC fill-in) ARE used (2026-11-02, change 1 in
+    CHANGES.md): in a test on past data, the trend including up to 4 fill-in
+    weeks matched what NYC's own data later showed 91-96% of the time and was
+    never backwards; leaving them out made the trend nearly always missing.
+    readout() marks such a trend as provisional."""
     t = cfg["trend"]
     k = t["window_weeks"]
     span = [latest - timedelta(days=7 * i) for i in range(2 * k)]
-    if any(w not in weeks or weeks[w]["below_loq"] or weeks[w]["provisional"] for w in span):
+    if any(w not in weeks or weeks[w]["below_loq"] for w in span):
         return None
     recent = _mean([weeks[w]["log10"] for w in span[:k]])
     before = _mean([weeks[w]["log10"] for w in span[k:]])
@@ -427,6 +431,8 @@ def readout(series, cfg, today=None):
     pct = 100.0 * sum(1 for v in hist if v < x_now) / len(hist) if hist else None
     since = series["comparable_since"]
     trend = None if t2 is None else _trend(weeks, latest, cfg)
+    trend_span = [latest - timedelta(days=7 * i) for i in range(2 * cfg["trend"]["window_weeks"])]
+    trend_provisional = trend is not None and any(weeks[w]["provisional"] for w in trend_span)
 
     week_label = latest if c["week"] == "us_sunday_to_saturday" else latest + timedelta(days=6)
     return {
@@ -436,7 +442,7 @@ def readout(series, cfg, today=None):
         "short_label": cfg["threshold"]["short_labels"][band],
         "confidence_label": c["confidence_label"],
         "prevalence": p_now, "one_in_n": one_in_n(p_now, cfg),
-        "trend": trend,
+        "trend": trend, "trend_provisional": trend_provisional,
         "percentile": None if pct is None else round(pct),
         "percentile_since": since.strftime("%B %Y"),
         "second_line": " · ".join(x for x in [one_in_n(p_now, cfg)[0].upper() + one_in_n(p_now, cfg)[1:]

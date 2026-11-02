@@ -142,13 +142,14 @@ private fun AlarmCard(r: Readout) {
 @Composable
 private fun HeadlineCard(p: PathogenData, a: Assessment, refreshing: Boolean, generatedAt: String) {
     val r = a.readout?.takeIf { it.available }
-    val tint = if (a.alert != Alert.NONE) Palette.alert(a.alert, a.phase) else r?.let { Palette.band(it.categoryIndex) } ?: Palette.alert(a.alert, a.phase)
+    val tint = r?.let { Palette.band(it.categoryIndex) } ?: Palette.alert(a.alert, a.phase)
     Card(colors = CardDefaults.cardColors(containerColor = tint.copy(alpha = 0.10f))) {
         Column(Modifier.padding(16.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(p.label, style = MaterialTheme.typography.titleMedium)
                 Spacer(Modifier.weight(1f))
-                if (refreshing) CircularProgressIndicator(Modifier.size(16.dp), strokeWidth = 2.dp) else PhaseBadge(a)
+                if (refreshing) CircularProgressIndicator(Modifier.size(16.dp), strokeWidth = 2.dp)
+                else if (r == null || a.phase != Phase.QUIET || a.alert != Alert.NONE) PhaseBadge(a)
             }
             Spacer(Modifier.height(10.dp))
             if (r != null) {
@@ -176,7 +177,7 @@ private fun HeadlineCard(p: PathogenData, a: Assessment, refreshing: Boolean, ge
                     if (r.dataDelayed) add("data delayed (${r.weeksBehind} weeks)")
                     if (r.provisional) add("newest week provisional (from CDC)")
                     if (r.singleWeekAfterGap) add("based on one week after a ${r.gapWeeks ?: "multi"}-week gap")
-                    if (r.trendAsOf != null && r.trend != null) add("trend from measured weeks to ${Fmt.date(r.trendAsOf)}")
+                    if (r.trendProvisional && r.trend != null) add("trend includes provisional weeks")
                     val built = generatedAt.take(10)
                     if (built.isNotEmpty() && built != LocalDate.now().toString()) add("readout computed ${Fmt.date(built)}")
                 } else {
@@ -323,7 +324,7 @@ private fun HistoryCard(p: PathogenData, a: Assessment, state: UiState) {
     val last = LocalDate.parse(weekly.last().weekEnd)
     val first = LocalDate.parse(weekly.first().weekEnd)
     val from = range.months?.let { last.minusMonths(it) }?.coerceAtLeast(first) ?: first
-    val main = Line(weekly.map { LocalDate.parse(it.weekEnd) to it.value!! }, Palette.alert(a.alert, a.phase), 2.5.dp)
+    val main = Line(weekly.map { LocalDate.parse(it.weekEnd) to it.value!! }, r?.let { Palette.band(it.categoryIndex) } ?: Palette.alert(a.alert, a.phase), 2.5.dp)
     val since = a.comparableSince
     val extras = buildList {
         if (p.isConcentration) p.sites.filter { it.points.isNotEmpty() }.forEach { s ->
@@ -374,7 +375,8 @@ private fun SeasonCard(p: PathogenData, a: Assessment) {
         Column(Modifier.padding(16.dp)) {
             Text("This year against previous years", style = MaterialTheme.typography.titleMedium)
             Spacer(Modifier.height(8.dp))
-            YearOverlayChart(weekly, logScale = p.isConcentration, concentration = p.isConcentration, highlightColor = Palette.alert(a.alert, a.phase))
+            YearOverlayChart(weekly, logScale = p.isConcentration, concentration = p.isConcentration,
+                highlightColor = a.readout?.takeIf { it.available }?.let { Palette.band(it.categoryIndex) } ?: Palette.alert(a.alert, a.phase))
             Spacer(Modifier.height(6.dp))
             Text("Each line is one calendar year, aligned by week, comparable laboratory period only. The bold line is the current year, so a wave starting early or late stands out against earlier years.",
                 style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)

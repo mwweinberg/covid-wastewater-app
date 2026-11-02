@@ -95,6 +95,7 @@ data class Readout(
     val oneInN: String? = null,
     val trend: String? = null,
     val trendAsOf: String? = null,
+    val trendProvisional: Boolean = false,
     val percentile: Int? = null,
     val percentileSince: String? = null,
     val secondLine: String? = null,
