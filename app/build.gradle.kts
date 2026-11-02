@@ -20,8 +20,8 @@ android {
         applicationId = "org.weinberg.wastewater"
         minSdk = 34
         targetSdk = 36
-        versionCode = 1
-        versionName = "0.1.0"
+        versionCode = 2
+        versionName = "0.2.0"
         buildConfigField("String", "DATA_BASE_URL", "\"https://raw.githubusercontent.com/mwweinberg/covid-wastewater-app/main/data/\"")
     }
 

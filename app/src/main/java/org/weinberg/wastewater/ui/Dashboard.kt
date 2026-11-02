@@ -244,8 +244,7 @@ private fun ThresholdCard(p: PathogenData, a: Assessment) {
     Card {
         Column(Modifier.padding(16.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text("Share of people infectious", style = MaterialTheme.typography.titleMedium)
-                Spacer(Modifier.weight(1f))
+                Text("People infectious", style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
                 Range.entries.forEach { rg -> FilterChip(selected = rg == range, onClick = { range = rg }, label = { Text(rg.label) }, modifier = Modifier.padding(start = 6.dp)) }
             }
             Spacer(Modifier.height(8.dp))
@@ -284,7 +283,7 @@ private fun TrendCard(p: PathogenData, a: Assessment, highPct: Int) {
                 a.atFloor -> "Rules are paused while CDC's level sits at its floor of 1.0."
                 r != null && edge != null -> {
                     val lvl = "${Fmt.level(edge, p.isConcentration)} ${p.unit}"
-                    (if (r.alertLevelOk) "The level is at or near the threshold band, which starts at $lvl" + (if (r.projected || p.id == Pathogens.COVID && a.comparableSince != null && r.weeksBehind > 0 && !r.dataDelayed) " (or projected to reach it within 3 weeks)." else ".")
+                    (if (r.alertLevelOk) "The level is at or near the threshold band, which starts at $lvl" + (if (r.projected) " (or projected to reach it within 3 weeks)." else ".")
                      else "The level is below the threshold band, which starts at $lvl.") +
                     (r.trend?.let { " Three-week trend: $it." } ?: " Three-week trend: not available (gap, floor values or provisional weeks).")
                 }

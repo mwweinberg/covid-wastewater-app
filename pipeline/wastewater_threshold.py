@@ -429,7 +429,7 @@ def readout(series, cfg, today=None):
     trend = None if t2 is None else _trend(weeks, latest, cfg)
     # App adaptation (2026-11-02): when the newest weeks are CDC fill-ins (NYC), the strict rule
     # would almost never show a trend. Fall back to the newest measured week and say which.
-    trend_as_of = None
+    trend_as_of = trend_as_of_label = None
     if trend is None and t2 is not None and weeks[latest]["provisional"]:
         measured = [w for w in weeks if not weeks[w]["provisional"]]
         if measured:
@@ -437,6 +437,7 @@ def readout(series, cfg, today=None):
             trend = _trend(weeks, m, cfg)
             if trend is not None:
                 trend_as_of = str(m if c["week"] == "us_sunday_to_saturday" else m + timedelta(days=6))
+                trend_as_of_label = date.fromisoformat(trend_as_of).strftime("%b ") + str(date.fromisoformat(trend_as_of).day)
 
     week_label = latest if c["week"] == "us_sunday_to_saturday" else latest + timedelta(days=6)
     return {
@@ -451,7 +452,7 @@ def readout(series, cfg, today=None):
         "percentile_since": since.strftime("%B %Y"),
         "second_line": " · ".join(x for x in [one_in_n(p_now, cfg)[0].upper() + one_in_n(p_now, cfg)[1:]
                                               + " people infectious",
-                                              trend + (f" (to {trend_as_of[5:]})" if trend and trend_as_of else "") if trend else None,
+                                              trend + (f" (to {trend_as_of_label})" if trend and trend_as_of else "") if trend else None,
                                               None if pct is None else
                                               f"Higher than {round(pct)}% of weeks since {since.strftime('%B %Y')}"]
                                   if x),
