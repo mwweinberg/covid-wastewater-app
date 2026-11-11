@@ -1,6 +1,6 @@
 {
  "schemaVersion": 2,
- "generatedAt": "2026-11-10T23:17:42+00:00",
+ "generatedAt": "2026-11-11T14:18:45+00:00",
  "cities": [
   {
    "cityId": "berlin",
@@ -12,8 +12,8 @@
     "fluB",
     "rsv"
    ],
-   "latestSampleDate": "2026-10-25",
-   "readout": "Well below the threshold (estimated for today)"
+   "latestSampleDate": "2026-11-01",
+   "readout": "Well above the threshold (estimated for today)"
   },
   {
    "cityId": "nyc",
