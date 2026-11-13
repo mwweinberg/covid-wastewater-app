@@ -1,6 +1,6 @@
 {
  "schemaVersion": 2,
- "generatedAt": "2026-11-12T23:37:22+00:00",
+ "generatedAt": "2026-11-13T14:32:27+00:00",
  "cities": [
   {
    "cityId": "berlin",
@@ -14,18 +14,6 @@
    ],
    "latestSampleDate": "2026-11-01",
    "readout": "Well above the threshold (estimated for today)"
-  },
-  {
-   "cityId": "nyc",
-   "cityName": "New York City",
-   "file": "nyc.json",
-   "pathogens": [
-    "covid",
-    "fluA",
-    "rsv"
-   ],
-   "latestSampleDate": "2026-10-10",
-   "readout": "Well above the threshold"
   },
   {
    "cityId": "dc",
